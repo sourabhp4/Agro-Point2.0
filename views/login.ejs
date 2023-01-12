@@ -1,0 +1,25 @@
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Agro-Point</title>
+  <link rel="stylesheet" href="/css/login_style.css">
+  <section class="container"></section>
+  <div class="login">
+    <img src= /images/logo.png> <h1>Login</h1>
+    <form method="POST" action="/api/login" id="loginForm">
+      <% error.forEach((item) => { %>
+        <h5 style="color: red"><%= item %></h5>
+        <% });%>
+      <p><input type="email" name="email" placeholder="Email" id="uemail" required></p>
+      <p><input type="password" name="password" placeholder="Password" id="psw" required></p>
+      <p>Forgot Password? <a href="forgotPassword">Click Here..</a></p>
+      <p><select name="type" id="ptype">
+          <option value="user">Formal User</option>
+          <option value="org_user">Organizational User</option>
+        </select>
+      </p>
+      <p class="submit"><input type="submit" name="submit" value="Login"></p>
+    </form>
+  </div>
+  <div class="login">
+    <p>New User? <a href="register">Register Here</a></p>
+  </div>

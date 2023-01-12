@@ -1,0 +1,15 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Agro-Point</title>
+<section class="container"></section>
+
+<div class="productDelete">
+  <img src= /images/logo.png>
+  <% error.forEach((item) => { %>
+    <h5 style="color: red"><%= item %></h5>
+    <% });%>
+</div>
+
+<div class="GoBack">
+  <button onClick="location.href = '/api/adminControl/<%= o_uid %>'">Go Back</button>
+</div>

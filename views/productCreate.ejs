@@ -1,0 +1,31 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Agro-Point</title>
+<section class="container"></section>
+
+<div class="productCreate">
+  <img src= /images/logo.png> <h1>Create Product</h1>
+  <form method="post" action="/api/adminControl/add/<%= o_uid %>">
+    <% error.forEach((item) => { %>
+      <h5 style="color: red"><%= item %></h5>
+      <% });%>
+    <p><input type="text" name="name" placeholder="Product name" required></p>
+    <p><input type="number" name="release_year" placeholder="Release Year" required></p>
+    <p><input type="text" name="official_link" placeholder="Official Link" required></p>
+    <p><input type="text" name="description" placeholder="Description" required></p>
+    <p><select name="category_id" id="cid">
+        <option value=1>Fertilizers</option>
+        <option value=2>Pesticides</option>
+        <option value=3>Tools</option>
+        <option value=4>Seeds</option>
+        <option value=6>Vehicles</option>
+        <option value=5>Other</option>
+      </select>
+    </p>
+    <p class="submit"><input type="submit" name="submit" value="Submit" required></p>
+  </form>
+</div>
+
+<div class="Cancel">
+  <button onClick="location.href = '/api/adminControl/<%= o_uid %>'">Cancel</button>
+</div>

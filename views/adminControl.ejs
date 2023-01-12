@@ -1,0 +1,57 @@
+<link rel="stylesheet" href="/css/profile.css">
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap" rel="stylesheet">
+<title>Agro-Point</title>
+
+<div id="nav">
+    <img src="/images/logo.png" id="logo">
+    <a id="profile" href="">Namasthe <%=admin.name%> !</a>
+    <a href="/api/logout">Logout</a>
+</div>
+
+<div id="name">
+    <Br><br><br><Br><br><br><Br><br><br>
+    <p><%= admin.name%>, Below Are Your Products</p>
+</div>
+<div id="products">
+    <h3>PRODUCTS</h3>
+    <br>
+    <div>
+        <form method="GET" action="/api/adminControl/add/<%= admin.o_uid %>" id="addProductForm">
+            <p class="submit"><input type="submit" name="submit" value="Add Product"></p>
+        </form>
+    </div>
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Product Name</th>
+            <th>Release Year</th>
+            <th>Official Link</th>
+            <th>Rating</th>
+            <th>Description</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+        <% products.forEach((product) => { %>
+        <div class="row">
+            <tr>
+                <td><%= product.category_name %> </td>
+                <td><%= product.name%></td>
+                <td><%= product.release_year%></td>
+                <td><%= product.official_link%></td>
+                <td><%= product.Rating%></td>
+                <td><%= product.description%></td>
+                <td>
+                    <button onclick="location.href = '/api/adminControl/update/<%= admin.o_uid %>/<%=product.pid%>';">
+                        Update
+                    </button>                
+                </td>
+                <td>
+                    <button onclick="location.href = '/api/adminControl/update/<%= admin.o_uid %>/<%=product.pid%>';">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </div>
+        <% });%>
+    </table>
+</div>
