@@ -5,7 +5,7 @@
 
 <div class="productCreate">
   <img src= /images/logo.png> <h1>Create Product</h1>
-  <form method="post" action="/api/adminControl/add/<%= o_uid %>">
+  <form method="post" action="/api/adminControl/add">
     <% error.forEach((item) => { %>
       <h5 style="color: red"><%= item %></h5>
       <% });%>
@@ -27,5 +27,5 @@
 </div>
 
 <div class="Cancel">
-  <button onClick="location.href = '/api/adminControl/<%= o_uid %>'">Cancel</button>
+  <button onClick="location.href = '/api/adminControl'">Cancel</button>
 </div>

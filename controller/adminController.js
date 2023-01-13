@@ -6,7 +6,7 @@ const connection = require('../config/db')
 const getinfo = asynchandler(async (req, res) => {
     const error = []
     let adminName
-    connection.query(`select name from org_user where o_uid = ${req.params.o_uid}`, async (err, results, field) => {
+    connection.query(`select name from org_user where o_uid = ${req.session.user.o_uid}`, async (err, results, field) => {
         if (err) {
             error.push('Server Error')
             return res.status(500).render('login', {
@@ -31,7 +31,7 @@ const getinfo = asynchandler(async (req, res) => {
                 error: error
             })
         }
-        return res.status(200).render('adminControl', { admin: {name: adminName, o_uid: req.params.o_uid}, products: results1})
+        return res.status(200).render('adminControl', { admin: {name: adminName, o_uid: req.session.user.o_uid}, products: results1})
     })
 
 })
@@ -39,26 +39,35 @@ const getinfo = asynchandler(async (req, res) => {
 const addProduct = asynchandler(async (req, res) => {
 
     const error = []
-    const o_uid = req.params.o_uid
+    const o_uid = req.session.user.o_uid
     connection.query(`select * from org_user where o_uid = ${o_uid}`, async (err, results, field) => {
         if (err) {
             error.push('Server Error... Try again')
-            return res.status(500).render('productCreate', { o_uid: o_uid, error: error })
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
         }
         if (results.length == 0) {
             error.push('Credentials not matches with admin... Try LogIn again')
-            return res.status(500).render('login', {error: error})
+            req.session.destroy(() => {
+                return res.status(401).render('login', {
+                    error: error
+                })
+            })
         }
 
         connection.query(`insert into products (name, release_year, official_link, description, category_id, org_uid) values 
         ("${req.body.name}", ${req.body.release_year}, "${req.body.official_link}", "${req.body.description}", ${req.body.category_id}, ${o_uid})`,
         (err, results, field) => {
             if (err) {
-                if (err.errno === 1062)
-                    error.push(err.message)
-                else
-                    error.push('Server Error')
-                return res.render('productCreate', { o_uid: o_uid, error: error })
+                error.push('Server Error... Try again')
+                req.session.destroy(() => {
+                    return res.status(500).render('login', {
+                        error: error
+                    })
+                })
             } 
             error.push('Product Creation Successful.. You can create another product or Press cancel to go back')
             return res.status(200).render('productCreate', { o_uid: o_uid, error: error })
@@ -72,16 +81,24 @@ const updateProduct = asynchandler(async (req, res) => {
     const error = []
 
     const pid = req.params.pid
-    const o_uid = req.params.o_uid
+    const o_uid = req.session.user.o_uid
 
     connection.query(`select * from org_user where o_uid = ${o_uid}`, async (err, results1, field) => {
         if (err) {
             error.push('Server Error... Try again')
-            return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
         }
         if (results1.length == 0) {
             error.push('Credentials not matches with admin... Try LogIn again')
-            return res.status(500).render('login', {error: error})
+            req.session.destroy(() => {
+                return res.status(400).render('login', {
+                    error: error
+                })
+            })
         }
         
         connection.query(`update products set name = ?, release_year = ?, official_link = ?, description = ?, category_id = ? where pid = ${pid}`, 
@@ -110,27 +127,35 @@ const deleteProduct = asynchandler(async (req, res) => {
 
     const error = []
     const pid = req.params.pid
-    const o_uid = req.params.o_uid
+    const o_uid = req.session.user.o_uid
 
     if(pid === null){
         error.push('pid required in the request to delete the product')
-        return res.render('productDelete', {o_uid: req.params.o_uid, error: error})
+        return res.render('productDelete', {o_uid: o_uid, error: error})
     }
 
     connection.query(`select * from products where pid = ${pid}`, 
         async (err, results, field) => {
         if (err) {  
-            error.push('Server Error.. Try again')
-            return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
+            error.push('Server Error... Try again')
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
         }
         if (results.length == 0) {
             error.push('Product not found')
-            return res.status(400).render('productDelete', { o_uid: o_uid, error: error })
+            req.session.destroy(() => {
+                return res.status(400).render('login', {
+                    error: error
+                })
+            })
         }
         connection.query(`delete from products where pid = ${pid}`,
             async (err, results, field) => {
             if (err) {
-                error.push(err.message)
+                error.push('Product Deletion failed..')
                 return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
             } else {
                 error.push('Product deleted successfully')
@@ -144,7 +169,7 @@ const getUpdateForm = asynchandler(async (req, res) => {
 
     const error = []
     const pid = req.params.pid
-    const o_uid = req.params.o_uid
+    const o_uid = req.session.user.o_uid
     connection.query(`select * from products where pid = ${pid}`,
         async (err, results, field) => {
         if (err) {  
@@ -169,7 +194,7 @@ const getUpdateForm = asynchandler(async (req, res) => {
 const getCreateForm = asynchandler(async (req, res) => {
 
     const error = []
-    const o_uid = req.params.o_uid
+    const o_uid = req.session.user.o_uid
     connection.query(`select * from org_user where o_uid = ${o_uid}`, async (err, results, field) => {
         
         if (err) {
@@ -178,10 +203,14 @@ const getCreateForm = asynchandler(async (req, res) => {
         }
         if (results.length == 0) {
             error.push('Credentials not matches with admin... Try LogIn again')
-            return res.status(500).render('login', {error: error})
+            req.session.destroy(() => {
+                return res.status(400).render('login', {
+                    error: error
+                })
+            })
         }
 
-        res.render('productCreate', { o_uid: o_uid, error : [] })
+        res.status(200).render('productCreate', { o_uid: o_uid, error : [] })
     })
 
 })

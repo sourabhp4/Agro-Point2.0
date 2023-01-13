@@ -5,7 +5,7 @@
 
 <div class="productUpdate">
   <img src= /images/logo.png> <h1>Update/Delete Product</h1>
-  <form method="post" action="/api/adminControl/update/<%= o_uid %>/<%= pid %>">
+  <form method="post" action="/api/adminControl/update/<%= pid %>">
     <% error.forEach((item) => { %>
       <h5 style="color: red"><%= item %></h5>
       <% });%>
@@ -27,11 +27,11 @@
 </div>
 
 <div class="productDelete">
-  <form method="post" action="/api/adminControl/delete/<%= o_uid %>/<%= pid %>">
+  <form method="post" action="/api/adminControl/delete/<%= pid %>">
     <p class="submit"><input type="submit" name="submit" value="Delete" required></p>
   </form>
 </div>
 
 <div class="Cancel">
-  <button onClick="location.href = '/api/adminControl/<%= o_uid %>'">Cancel</button>
+  <button onClick="location.href = '/api/adminControl'">Cancel</button>
 </div>
