@@ -6,6 +6,7 @@
     <img src="/images/logo.png" id="logo">
     <a id="profile" href="">Hi <%= profile.name %>! </a>
     <a href="/api/logout">Logout</a>
+    <a href="/api/user">Go To Main Page</a>
 </div>
 
 <div id="name">
@@ -22,7 +23,6 @@
         <p><input type="text" name="name" placeholder="Name" value="<%= profile.name %>" required></p>
         
         <p><input type="password" name="oldPassword" placeholder="Enter Previous Password" required></p>
-        <p>Forgot Password? <a href="forgotPassword">Click Here..</a></p>
         <p><input type="password" name="newPassword1" placeholder="New Password" required></p>
         <p><input type="password" name="newPassword2" placeholder="Confirm New Password" required></p>
 

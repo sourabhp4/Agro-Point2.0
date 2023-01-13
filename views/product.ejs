@@ -22,8 +22,8 @@
         <h6><a href="<%= official_link %>" target="_blank">Click to go to official site of the product</a></h6>
     </div>
     <br>
-    <h4>Your Comment:</h4>
     <% newComment.forEach((comment) => { %>
+        <h4>Add Your Comment:</h4>
         <form method="post" action="/api/comment/addComment/<%= pid %>">
             <p><input type="text" name="comment" placeholder="Your Comment" required></p>
             <p>Your Rating
@@ -39,6 +39,7 @@
         </form>
     <% });%>
     <% oldComment.forEach((comment) => { %>
+        <h4>Your Comment:</h4>
         <div class="comment">
             <h6>Commented At: <%= comment.createdAt %></h6>
             <h5>Comment: <%= comment.comment %></h5>
