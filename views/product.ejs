@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro-Point</title>
+</head>
+<body>
+    <nav>
+        <div id="nav">
+            <img src="/images/logo.png" id="logo">
+            <a id="profile" href="">Namasthe <%= userName %> !</a>
+            <a href="/api/logout">Logout</a>
+        </div>
+    </nav>
+    <div class="product">
+        <h5><a href=""><%= name %></a></h5><a href="/api/category/<%= category_id %>">Go Back</a>
+        <p>Description: <%= description %></p>
+        <h5>Rating: <%= rating %>/5</h5>
+        <h6>Release Year: <%= release_year %></h6>
+        <h6><a href="<%= official_link %>" target="_blank">Click to go to official site of the product</a></h6>
+    </div>
+    <br>
+    <h4>Your Comment:</h4>
+    <% newComment.forEach((comment) => { %>
+        <form method="post" action="/api/comment/addComment/<%= pid %>">
+            <p><input type="text" name="comment" placeholder="Your Comment" required></p>
+            <p>Your Rating
+                <select name="rating" id="rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </p>
+            <p class="submit"><input type="submit" name="submit" value="Comment" required></p>
+        </form>
+    <% });%>
+    <% oldComment.forEach((comment) => { %>
+        <div class="comment">
+            <h6>Commented At: <%= comment.createdAt %></h6>
+            <h5>Comment: <%= comment.comment %></h5>
+            <h6>Rating: <%= comment.rating %></h6>
+            <button onclick="location.href = '/api/comment/deleteComment/<%= pid %>';">
+                Delete
+            </button>
+        </div>
+    <% });%>
+    <h3>Other's Comments:</h3>
+    <div class="comments">
+        <% comments.forEach((comment) => { %>
+            <div class="comment">
+                <h5>Commented By <%= comment.name %></h5>
+                <h6>Commented At: <%= comment.createdAt %></h6>
+                <h5><%= comment.comment %></h5>
+                <h6><%= comment.rating %></h6>
+            </div>
+        <% });%>
+    </div>
+</body>
+</html>

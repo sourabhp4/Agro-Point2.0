@@ -31,12 +31,13 @@ const createProfile = asynchandler(async (req, res) => {
                         error.push('Server error')
                         return res.status(500).render('register', { error: error })
                     } 
-                    connection.query(`select uid from user where email = ${req.body.email}`, (err, results, fields) =>{
-                        if(err){
+                    connection.query(`select uid, name from user where email = "${req.body.email}"`, (err, results, fields) =>{
+                        if((err) || (results.length == 0)){
                             error.push('Server error, Try LogIn')
                             return res.status(500).render('login', { error: error })
                         }
-                        res.status(200).redirect(`/api/home/${results[0].uid}`)
+                        req.session.user = {type: "user", uid: results[0].uid, name: results[0].name }
+                        res.status(200).redirect(`/api/user`)
                     })
                 })
             }

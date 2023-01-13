@@ -4,43 +4,28 @@
 
 <div id="nav">
     <img src="/images/logo.png" id="logo">
-    <a id="profile" href="">Hi <%=customer.first_name%> ! </a>
-    <a href="/users/logout">Logout</a>
+    <a id="profile" href="">Hi <%= profile.name %>! </a>
+    <a href="/api/logout">Logout</a>
 </div>
 
 <div id="name">
     <Br><br><br><Br><br><br><Br><br><br>
-    <p><%= customer.first_name %> <%= customer.last_name %></p>
+    <p> Your Email Address <%= profile.email %></p>
 </div>
-<div id="bookings">
-    <h3>Bookings </h3>
-    <br>
-    <table>
-        <tr>
-            <th>Resort Name</th>
-            <th>Booking Date</th>
-            <th>End Date</th>
-            <th>Room Type</th>
-            <th>Number of Rooms Booked</th>
-            <th>Price Paid</th>
-            <th>Update </th>
-            <th>Delete </th>
-        </tr>
-        <% bookings.forEach((item) => { %>
-        <div class="row">
-            <tr>
-                <td><%= item.hotel_name %> </td>
-                <td><%= item.start_time%></td>
-                <td><%= item.end_time%></td>
-                <td><%= item.category_name%></td>
-                <td><%= item.quantity%></td>
-                <td><%= item.price%></td>
-                <td><button onclick="location.href = '/users/hotelUpdate/<%= item.hotel_id %>/<%=customer.customer_id%>';">
-                    Update</button></td>
-                <td><button onclick="location.href = '/users/hotelDelete/<%= item.hotel_id %>/<%=customer.customer_id%>';">
-                    Delete</button></td>
-            </tr>
-        </div>
-        <% });%>
-    </table>
+
+<div id="profile">
+    <h3>Update Profile</h3>
+    <form method="post" action="/api/profile">
+        <% error.forEach((item) => { %>
+          <h5 style="color: red"><%= item %></h5>
+          <% });%>
+        <p><input type="text" name="name" placeholder="Name" value="<%= profile.name %>" required></p>
+        
+        <p><input type="password" name="oldPassword" placeholder="Enter Previous Password" required></p>
+        <p>Forgot Password? <a href="forgotPassword">Click Here..</a></p>
+        <p><input type="password" name="newPassword1" placeholder="New Password" required></p>
+        <p><input type="password" name="newPassword2" placeholder="Confirm New Password" required></p>
+
+        <p class="submit"><input type="submit" name="submit" value="Update" required></p>
+      </form>
 </div>

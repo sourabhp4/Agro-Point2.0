@@ -6,58 +6,87 @@ const { encrypt, decrypt } = require('../config/crypto')
 
 const getProfile = asynchandler(async (req, res) => {
 
-    connection.query(`select email, password, name from ${req.body.profile_type} where email = "${req.body.email}"`, async (err, results, field) => {
+    const error = []
+    connection.query(`select email, name, uid from user where uid = ${req.session.user.uid}`, 
+    async (err, results, field) => {
         if (err) {
-            res.status(500).send({"message": "Server error"})
-        } else {
-            if (results.length == 0) {
-                return res.status(401).send({"message": "The profile does not exist"})
-            }
-            results[0].password = decrypt(results[0].password)
-            res.status(200).send(results[0])
+            error.push('Server Error')
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
         }
+        if (results.length == 0) {
+            error.push('Profile not found.. Try LogIn')
+            req.session.destroy(() => {
+                return res.status(401).render('login', {
+                    error: error
+                })
+            })
+        }
+
+        res.status(200).render('profile', { error: [], profile: results[0] })
+
     })
 
 })
 
 const updateProfile = asynchandler(async (req, res) => {
 
-    const result = validate(req.body)
+    const error = []
 
-    if(result){
-        res.status(400)
-        throw new Error(result.details[0].message)
-    }
-
-    connection.query(`update ${req.body.profile_type} set name = "${req.body.name}", password = "${encrypt(req.body.password)}" where email = "${req.body.email}"`,
+    connection.query(`select name, email, password from user where uid = ${req.session.user.uid}`, 
     async (err, results, field) => {
         if (err) {
-            res.status(500).send({"message": "Server error"})
-        } else {
-            getProfile(req, res)
+            error.push('Server Error')
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
+        }
+        if (results.length == 0) {
+            error.push('Profile not found.. Try LogIn')
+            req.session.destroy(() => {
+                return res.status(401).render('login', {
+                    error: error
+                })
+            })
+        }
+
+        if(req.body.oldPassword !== decrypt(results[0].password)){
+            error.push('Old password Entered is wrong')
+            return res.status(400).render('profile', {
+                error: error, profile: { name: results[0].name, email: results[0].email }
+            })
+        }
+        else if (req.body.newPassword1.length < 6) {
+            error.push('Password must be atleat 6 characters')
+            return res.status(400).render('profile', { error: error , profile: { name: results[0].name, email: results[0].email } })
+          }
+        else if( req.body.newPassword1 !== req.body.newPassword2){
+            error.push('ReConfirm new Passwords')
+            return res.status(400).render('profile', {
+                error: error, profile: { name: results[0].name, email: results[0].email }
+            })
+        }
+        else{
+            connection.query(`update user set name = "${req.body.name}", password = "${encrypt(req.body.newPassword1)}" where uid = ${req.session.user.uid}`,
+            async (err, results, field) => {
+                if (err) {
+                    error.push('Server Error')
+                    req.session.destroy(() => {
+                        return res.status(500).render('login', {
+                            error: error
+                        })
+                    })
+                }
+                res.status(200).redirect('/api/profile')
+            })
         }
     })
-
 })
-
-function validate(obj){
-    const schema = Joi.object({
-        password: Joi.string()
-        .min(8)
-        .max(20)
-        .required(),
-
-        name: Joi.string()
-        .min(3)
-        .max(20)
-        .required(),
-
-        email: Joi.string().required(),
-        profile_type: Joi.string().required()
-    })
-
-    return schema.validate(obj).error
-}
 
 module.exports = {
     getProfile,

@@ -9,8 +9,8 @@ router.route('/')
     res.statusCode = 200
     res.render("register", { error: [] })
     } else {
-    res.status = 401;
-    res.redirect("/api/dashboard?logout+first")
+    res.status = 401
+    res.redirect("/api/logout")
     }
 })
 .post(createProfile)

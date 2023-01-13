@@ -43,13 +43,14 @@ app.use('/api/logout', require('./routes/logoutRoutes'))
 
 app.use('/api/adminControl', checkAuth, require('./routes/adminRoutes'))
 
-app.use('/api/profile', require('./routes/profileRoutes'))
+app.use('/api/user', checkAuth, require('./routes/userRoutes'))
+app.use('/api/profile', checkAuth, require('./routes/profileRoutes'))
 
-app.use('/api/products', require('./routes/categoryRoutes'))
+app.use('/api/category', checkAuth, require('./routes/categoryRoutes'))
 
-app.use('/api/product', require('./routes/productRoutes'))
+app.use('/api/product', checkAuth, require('./routes/productRoutes'))
 
-app.use('/api/comment', require('./routes/commentRoutes'))
+app.use('/api/comment', checkAuth, require('./routes/commentRoutes'))
 
 
 app.get('*', (req, res) => {

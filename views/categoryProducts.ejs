@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro-Point</title>
+</head>
+<body>
+    <nav>
+        <div id="nav">
+            <img src="/images/logo.png" id="logo">
+            <a id="profile" href="">Namasthe <%= userName %> !</a>
+            <a href="/api/logout">Logout</a>
+        </div>
+    </nav>
+    <div class="products">
+        <h3><%= category_name %></h3>
+        <div class="desc"><%= desc %></div>
+        <br>
+        <a href="/api/category">Go Back</a>
+        <br>
+        <table>
+            <% products.forEach((product) => { %>
+                <div class="row">
+                    <tr>
+                        <td>Name: <%= product.name%></td>
+                        <td>Rating: <%= product.Rating%></td>
+                        <td>About: <%= product.description%></td>
+                        <td><a href="/api/product/<%= product.pid %>">View Product</a></td>
+                    </tr>
+                </div>
+            <% });%>
+        </table>
+    </div>
+</body>
+</html>

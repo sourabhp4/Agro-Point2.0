@@ -4,46 +4,69 @@ const Joi = require('joi')
 const connection = require('../config/db')
 
 const getProduct = asynchandler(async (req, res) => {
-    
-    const result = validate(req.body)
 
-    if(result){
-        res.status(400)
-        throw new Error(result.details[0].message)
-    }
+    const error = []
 
-    connection.query(`select pid, name, release_year, official_link, rating, description, category_id from products where pid = ${req.body.pid}`, 
-    async (err, results, field) => {
+    connection.query(`select name, release_year, official_link, rating, description, category_id, pid from products where pid = ${req.params.pid}`, 
+    async (err, results1, field) => {
         if (err) {
-            res.status(500).send({"message": "Server error"})
-        } else {
-            if (results.length == 0)
-                return res.status(401).send({"message": "This product does not exists"})
-            else{
-                connection.query(`select c.comment, c.rating, c.createdAt, c.updatedAt, u.name from comments c, user u  where c.p_id = ${req.body.pid} and c.user_id = u.uid`, 
-                async (err, results1, field) => {
-                    if (err) {
-                        res.status(500).send({"message": "Server error"})
-                    } else {
-                        results[0].comments = results1
-                        res.status(200).send(results[0])
-                    }
+            error.push('Server Error')
+            req.session.destroy(() => {
+                return res.status(500).render('login', {
+                    error: error
+                })
+            })
+        } 
+        if (results1.length == 0){
+            error.push('You are trying to access UNAUTHORIZED CONTENT')
+            req.session.destroy(() => {
+                return res.status(401).render('login', {
+                    error: error
+                })
+            })
+        }
+        const product = results1[0]
+        product.userName = req.session.user.name
+
+        const sql = `select c.comment, c.rating, c.createdAt, u.name from comments c, user u  
+            where c.p_id = ${req.params.pid} and c.user_id = u.uid and c.user_id != ${req.session.user.uid}`
+
+        connection.query(sql, async (err, results2, field) => {
+            if (err) {
+                error.push('Server Error')
+                req.session.destroy(() => {
+                    return res.status(500).render('login', {
+                        error: error
+                    })
                 })
             }
-        }
+
+            product.comments = results2
+
+            const sql = `select comment, rating, createdAt from comments 
+            where p_id = ${req.params.pid} and user_id = ${req.session.user.uid}`
+            connection.query(sql, async (err, results3, field) => {
+                if (err) {
+                    error.push('Server Error')
+                    req.session.destroy(() => {
+                        return res.status(500).render('login', {
+                            error: error
+                        })
+                    })
+                }
+                if(results3.length == 0){
+                    product.newComment = [1]
+                    product.oldComment = []
+                    return res.status(200).render('product', product)
+                }
+                product.newComment = []
+                product.oldComment = results3
+                res.status(200).render('product', product)
+            })
+        })
     })
 
 })
-
-
-function validate(obj){
-    const schema = Joi.object({
-        pid: Joi.number()
-        .required()
-    })
-
-    return schema.validate(obj).error
-}
 
 module.exports = {
     getProduct

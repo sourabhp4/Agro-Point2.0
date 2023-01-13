@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro-Point</title>
+</head>
+<body>
+    <nav>
+        <div id="nav">
+            <img src="/images/logo.png" id="logo">
+            <a id="profile" href="/api/profile">Namasthe <%=user.name%> !</a>
+            <a href="/api/logout">Logout</a>
+        </div>
+    </nav>
+    <div>
+        <button onclick="location.href = '/api/category';">
+            Explore Product Reviews
+        </button>
+    </div>
+</body>
+</html>

@@ -23,11 +23,11 @@ const validateProfile = asynchandler(async (req, res) => {
             const pwd = decrypt(results[0].password)
             if (pwd === req.body.password) {
                 if(req.body.type === 'user'){
-                    req.session.user = results[0];
-                    res.redirect(`/api/home/${results[0].uid}`)
+                    req.session.user = {type: req.body.type, uid: results[0].uid, name: results[0].name }
+                    res.redirect('/api/user')
                 }
-                else{
-                    req.session.user = results[0]
+                if(req.body.type === 'org_user'){
+                    req.session.user = {type: req.body.type, o_uid: results[0].o_uid}
                     res.redirect(`/api/adminControl/${results[0].o_uid}`)
                 }
             } else {
@@ -48,12 +48,12 @@ const logout = asynchandler(async (req, res) => {
         
         req.session.destroy(() => {
 
-            res.status(200).redirect('/api/login')
+            res.status(200).render('login', { error: [ 'Successfully logged out' ]})
             
         })
 
     } else {
-      res.status(400).redirect('/api/login')
+      res.status(400).render('login', { error: [ 'Your session already expired' ]})
     }
 })
 

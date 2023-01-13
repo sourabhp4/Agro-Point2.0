@@ -9,7 +9,10 @@ router.route('/').get( (req, res) => {
       res.render("login", { error: [] })
     } else {
       res.status = 401
-      res.redirect(`/api/adminControl/${user.o_uid}`)
+      if( req.session.user.type === 'org_user' )
+        res.redirect(`/api/adminControl/${req.session.user.o_uid}`)
+      if( req.session.user.type === 'user' )
+        res.redirect(`/api/home/${req.session.user.uid}`)
     }
   })
   .post(validateProfile)
