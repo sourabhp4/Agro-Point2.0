@@ -5,11 +5,12 @@
 
 <div class="productCreate">
   <img src= /images/logo.png> <h1>Create Product</h1>
-  <form method="post" action="/api/adminControl/add">
+  <form method="post" action="/api/adminControl/add" enctype="multipart/form-data">
     <% error.forEach((item) => { %>
       <h5 style="color: red"><%= item %></h5>
       <% });%>
     <p><input type="text" name="name" placeholder="Product name" required></p>
+    <p><input type="file" name="image" required></p>
     <p><input type="number" name="release_year" placeholder="Release Year" required></p>
     <p><input type="text" name="official_link" placeholder="Official Link" required></p>
     <p><input type="text" name="description" placeholder="Description" required></p>

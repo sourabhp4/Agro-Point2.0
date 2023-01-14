@@ -7,7 +7,7 @@ const getProduct = asynchandler(async (req, res) => {
 
     const error = []
 
-    connection.query(`select name, release_year, official_link, rating, description, category_id, pid from products where pid = ${req.params.pid}`, 
+    connection.query(`select name, release_year, official_link, rating, description, category_id, pid, img from products where pid = ${req.params.pid}`, 
     async (err, results1, field) => {
         if (err) {
             error.push('Server Error')
@@ -25,6 +25,10 @@ const getProduct = asynchandler(async (req, res) => {
                 })
             })
         }
+        if(results1[0].rating == 0 || results1[0].rating == null)
+            results1[0].rating = "Not Rated"
+        else
+            results1[0].rating = `${results1[0].rating}/5`
         const product = results1[0]
         product.userName = req.session.user.name
 

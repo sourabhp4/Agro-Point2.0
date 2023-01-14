@@ -22,6 +22,7 @@
     </div>
     <table>
         <tr>
+            <th>Image</th>
             <th>Category</th>
             <th>Product Name</th>
             <th>Release Year</th>
@@ -34,6 +35,7 @@
         <% products.forEach((product) => { %>
         <div class="row">
             <tr>
+                <td><img src="/images/<%= product.img %>" width="50px" height="50px" alt=""></td>
                 <td><%= product.category_name %> </td>
                 <td><%= product.name%></td>
                 <td><%= product.release_year%></td>

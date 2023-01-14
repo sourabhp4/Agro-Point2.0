@@ -23,7 +23,12 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 
-app.use(fileUpload())
+app.use(fileUpload({
+  limits: {
+      fileSize: 10000000,
+  },
+  abortOnLimit: true,
+}))
 
 app.use(session({
   secret: 'seCReT',

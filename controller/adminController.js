@@ -1,28 +1,15 @@
 
 const asynchandler = require('express-async-handler')
 const Joi = require('joi')
+const path = require('path')
 const connection = require('../config/db')
 
 const getinfo = asynchandler(async (req, res) => {
     const error = []
-    let adminName
-    connection.query(`select name from org_user where o_uid = ${req.session.user.o_uid}`, async (err, results, field) => {
-        if (err) {
-            error.push('Server Error')
-            return res.status(500).render('login', {
-                error: error
-            })
-        }
-        if (results.length == 0) {
-            error.push('User has no privilege to be admin')
-            return res.status(500).render('login', {
-                error: error
-            }) 
-        }
-        adminName = results[0].name
-    })
+    
+    const adminName = req.session.user.name
 
-    const sql = `select p.pid, p.name, p.release_year, p.official_link, p.rating, p.description, c.category_name
+    const sql = `select p.pid, p.name, p.release_year, p.official_link, p.rating, p.description, c.category_name, p.img
                 from category c, products p where p.category_id = c.category_id`
     connection.query(sql, async (err, results1, field) => {
         if (err) {
@@ -40,6 +27,25 @@ const addProduct = asynchandler(async (req, res) => {
 
     const error = []
     const o_uid = req.session.user.o_uid
+    const { image } = req.files
+
+    if (!image){
+        error.push('Image is required')
+        return res.status(400).render('productCreate', { o_uid: o_uid, error: error })
+    }
+
+    var magic = {
+        jpg: 'ffd8ffe0',
+        png: '89504e47'
+    }
+
+    var magigNumberInBody = image.data.toString('hex',0,4);
+    if (!magigNumberInBody == magic.jpg || 
+        !magigNumberInBody == magic.png ) {
+        error.push('Improper image type..It should be (jpg / png)')
+        return res.status(400).render('productCreate', { o_uid: o_uid, error: error })
+    }
+
     connection.query(`select * from org_user where o_uid = ${o_uid}`, async (err, results, field) => {
         if (err) {
             error.push('Server Error... Try again')
@@ -58,19 +64,27 @@ const addProduct = asynchandler(async (req, res) => {
             })
         }
 
-        connection.query(`insert into products (name, release_year, official_link, description, category_id, org_uid) values 
-        ("${req.body.name}", ${req.body.release_year}, "${req.body.official_link}", "${req.body.description}", ${req.body.category_id}, ${o_uid})`,
+        const imgext = image.name.split(".")
+        const imgnamearr = req.body.name.split(" ")
+        const imgname = imgnamearr.join('_')
+        image.name = imgname + '.' + imgext[imgext.length - 1]
+
+        connection.query(`insert into products (name, release_year, official_link, description, category_id, org_uid, img) values 
+        ("${req.body.name}", ${req.body.release_year}, "${req.body.official_link}", "${req.body.description}", ${req.body.category_id}, ${o_uid}, "${image.name}")`,
         (err, results, field) => {
             if (err) {
-                error.push('Server Error... Try again')
+                error.push('Server Error... Try again1')
                 req.session.destroy(() => {
                     return res.status(500).render('login', {
                         error: error
                     })
                 })
-            } 
-            error.push('Product Creation Successful.. You can create another product or Press cancel to go back')
-            return res.status(200).render('productCreate', { o_uid: o_uid, error: error })
+            }
+            else{
+                image.mv(path.dirname(__dirname) + '/public/images/' + image.name)
+                error.push('Product Creation Successful.. You can create another product or Press cancel to go back')
+                return res.status(200).render('productCreate', { o_uid: o_uid, error: error })
+            }
         })
     })
 
@@ -106,13 +120,13 @@ const updateProduct = asynchandler(async (req, res) => {
             async (err, results2, field) => {
                 if (err) {
                     error.push('Server Error.. Try again.. You can go Back')
-                    return res.status(500).render('productDelete', { o_uid: o_uid, error: error})
+                    return res.status(500).render('productOperationInfo', { o_uid: o_uid, error: error})
                 } else {
                     connection.query(`select * from products where pid = ${pid}`,
                     async (err, results3, field) => {
                             if(err){
                                 error.push('Server Error while retrieving.. But the product Updated... You can go Back')
-                                return res.status(500).render('productDelete', { o_uid: o_uid, error: error})
+                                return res.status(500).render('productOperationInfo', { o_uid: o_uid, error: error})
                             }
                             const product = results3[0]
                             error.push('Product Updated Successfully, You can Update Once again or Press Cancel to go back')
@@ -131,7 +145,7 @@ const deleteProduct = asynchandler(async (req, res) => {
 
     if(pid === null){
         error.push('pid required in the request to delete the product')
-        return res.render('productDelete', {o_uid: o_uid, error: error})
+        return res.render('productOperationInfo', {o_uid: o_uid, error: error})
     }
 
     connection.query(`select * from products where pid = ${pid}`, 
@@ -156,10 +170,10 @@ const deleteProduct = asynchandler(async (req, res) => {
             async (err, results, field) => {
             if (err) {
                 error.push('Product Deletion failed..')
-                return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
+                return res.status(500).render('productOperationInfo', { o_uid: o_uid, error: error })
             } else {
                 error.push('Product deleted successfully')
-                return res.status(200).render('productDelete', { o_uid: o_uid, error: error })
+                return res.status(200).render('productOperationInfo', { o_uid: o_uid, error: error })
             }
         })
     })
@@ -174,11 +188,11 @@ const getUpdateForm = asynchandler(async (req, res) => {
         async (err, results, field) => {
         if (err) {  
             error.push(err.message)
-            return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
+            return res.status(500).render('productOperationInfo', { o_uid: o_uid, error: error })
         }
         if (results.length == 0) {
             error.push('Product Not Found')
-            return res.status(400).render('productDelete', { o_uid: o_uid, error: error })
+            return res.status(400).render('productOperationInfo', { o_uid: o_uid, error: error })
         }
         const product = { 
             name: results[0].name,
@@ -199,7 +213,7 @@ const getCreateForm = asynchandler(async (req, res) => {
         
         if (err) {
             error.push('Server Error... Try again')
-            return res.status(500).render('productDelete', { o_uid: o_uid, error: error })
+            return res.status(500).render('productOperationInfo', { o_uid: o_uid, error: error })
         }
         if (results.length == 0) {
             error.push('Credentials not matches with admin... Try LogIn again')

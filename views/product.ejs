@@ -15,9 +15,11 @@
         </div>
     </nav>
     <div class="product">
-        <h5><a href=""><%= name %></a></h5><a href="/api/category/<%= category_id %>">Go Back</a>
+        <h5><a href=""><%= name %></a></h5>
+        <a href="/api/category/<%= category_id %>">Go Back</a>
+        <img src="/images/<%= img %>" width="150px" height="150px" alt="">
         <p>Description: <%= description %></p>
-        <h5>Rating: <%= rating %>/5</h5>
+        <h5>Rating: <%= rating %></h5>
         <h6>Release Year: <%= release_year %></h6>
         <h6><a href="<%= official_link %>" target="_blank">Click to go to official site of the product</a></h6>
     </div>
