@@ -73,7 +73,7 @@ const updateProfile = asynchandler(async (req, res) => {
         }
         else{
             connection.query(`update user set name = "${req.body.name}", password = "${encrypt(req.body.newPassword1)}" where uid = ${req.session.user.uid}`,
-            async (err, results, field) => {
+            async (err, results1, field) => {
                 if (err) {
                     error.push('Server Error')
                     req.session.destroy(() => {
@@ -82,7 +82,9 @@ const updateProfile = asynchandler(async (req, res) => {
                         })
                     })
                 }
-                res.status(200).redirect('/api/profile')
+                return res.status(200).render('profile', {
+                    error: ['Sucessfully Updated..'], profile: { name: results[0].name, email: results[0].email }
+                })
             })
         }
     })

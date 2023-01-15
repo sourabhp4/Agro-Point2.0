@@ -10,7 +10,7 @@ const mailPassword = asynchandler(async (req, res) => {
 
     connection.query(`select password from ${req.body.type} where email = "${req.body.email}"`, async (err, results, field) => {
         if (err) {
-            error.push('Server error')
+            error.push('Server Error')
             return res.status(500).render('forgotPassword', { error: error })
         } else {
             if (results.length == 0) {
@@ -37,7 +37,7 @@ function sendMail(req, res, user, error){
 
         transporter.sendMail(mailOptions, (err, info) =>{
             if(err){
-                error.push('Server error')
+                error.push("Server Error")
                 return res.status(500).render('forgotPassword', { error: error })
             }
             error.push('See for mail from us...click LOGIN to go to login page')
@@ -51,21 +51,6 @@ function sendMail(req, res, user, error){
         res.status(400)
         throw new Error(err.message)
     }
-}
-
-
-function validate(obj){
-    const schema = Joi.object({
-        email: Joi.string()
-        .email({ minDomainSegments: 2 })
-        .required(),
-
-        profile_type: Joi.string()
-        .valid('user','org_user')
-        .required()
-    })
-
-    return schema.validate(obj).error
 }
 
 module.exports = {

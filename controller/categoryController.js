@@ -44,7 +44,6 @@ const getProducts = asynchandler(async (req, res) => {
                             else
                                 results2[i].rating = `${results2[i].rating}/5`
                         }
-
                         const categoryProducts = { category_name: results1[0].category_name, 
                             desc: results1[0].description,
                             products: results2

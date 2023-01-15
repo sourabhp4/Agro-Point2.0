@@ -45,6 +45,10 @@ const getProduct = asynchandler(async (req, res) => {
                 })
             }
 
+            if(results2.length == 0)
+                product.commentStatus = 'No Reviews Yet'
+            else
+                product.commentStatus = 'Other\'s Reviews:'
             product.comments = results2
 
             const sql = `select comment, rating, createdAt from comments 
