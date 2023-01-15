@@ -1,10 +1,11 @@
 body {
   color: #000;
-  overflow-x: hidden;
   height: auto;    
   background: -webkit-gradient(linear, left top, left bottom, from(#80FF72), to(#F8EF42) );
   background-repeat: no-repeat;
-  background-size: 100% 100%
+  background-size: 100% 100%;
+  min-height: 100vh;
+  overflow: auto;
 }
 @media (max-width: 576px) { 
   body {

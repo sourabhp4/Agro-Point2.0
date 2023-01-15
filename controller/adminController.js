@@ -18,6 +18,13 @@ const getinfo = asynchandler(async (req, res) => {
                 error: error
             })
         }
+
+        for(let i = 0; i < results1.length; i++){
+            if(results1[i].rating == 0 || results1[i].rating == null){
+                results1[i].rating = 'Not Rated'
+            }
+        }
+
         return res.status(200).render('adminControl', { admin: {name: adminName, o_uid: req.session.user.o_uid}, products: results1})
     })
 
@@ -34,17 +41,17 @@ const addProduct = asynchandler(async (req, res) => {
         return res.status(400).render('productCreate', { o_uid: o_uid, error: error })
     }
 
-    var magic = {
-        jpg: 'ffd8ffe0',
-        png: '89504e47'
-    }
+    // var magic = {
+    //     jpg: 'ffd8ffe0',
+    //     png: '89504e47'
+    // }
 
-    var magigNumberInBody = image.data.toString('hex',0,4);
-    if (!magigNumberInBody == magic.jpg || 
-        !magigNumberInBody == magic.png ) {
-        error.push('Improper image type..It should be (jpg / png)')
-        return res.status(400).render('productCreate', { o_uid: o_uid, error: error })
-    }
+    // var magigNumberInBody = image.data.toString('hex',0,4);
+    // if (!magigNumberInBody == magic.jpg || 
+    //     !magigNumberInBody == magic.png ) {
+    //     error.push('Improper image type..It should be (jpg / png)')
+    //     return res.status(400).render('productCreate', { o_uid: o_uid, error: error })
+    // }
 
     connection.query(`select * from org_user where o_uid = ${o_uid}`, async (err, results, field) => {
         if (err) {
@@ -73,11 +80,9 @@ const addProduct = asynchandler(async (req, res) => {
         ("${req.body.name}", ${req.body.release_year}, "${req.body.official_link}", "${req.body.description}", ${req.body.category_id}, ${o_uid}, "${image.name}")`,
         (err, results, field) => {
             if (err) {
-                error.push('Server Error... Try again1')
-                req.session.destroy(() => {
-                    return res.status(500).render('login', {
-                        error: error
-                    })
+                error.push('Server Error... Try again')
+                return res.status(500).render('productOperationInfo', {
+                    error: error
                 })
             }
             else{
